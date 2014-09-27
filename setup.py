@@ -19,7 +19,7 @@ setup(
     long_description=read_md('README.md'),
     license='MIT',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Security',
@@ -29,14 +29,16 @@ setup(
         'Programming Language :: Python :: 3',
     ],
     keywords='virustotal api private',
+    py_modules=['pyvt'],
+    include_package_data=True,
     install_requires=[],
-    data_files=[],
-    scripts=[],
-    setup_requires=[],
     tests_require=['nose', 'coverage'],
-    packages=find_packages(exclude=['tests', 'tests.*']),
     zip_safe=False,
     test_suite='nose.collector',
+    # data_files=[],
+    # scripts=[],
+    # setup_requires=[],
+    # packages=find_packages(exclude=['tests', 'tests.*']),
     **extra_kwargs
 )
 
