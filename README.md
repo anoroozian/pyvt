@@ -8,9 +8,7 @@ This module borrows code from, the [virustotal2](https://github.com/Phillipmarti
 It uses the same rate limiting logic as virustotal2. Additionally it unifies the output of the API to json format and adds support for bulk queries.
 
 
-How To Use
-==========
-::
+##How To Use
 
     import pyvt
 
@@ -30,13 +28,13 @@ How To Use
     api.retrieve('3dtaller.com.ar')
     
 
-**Installiation** ::
+##Installiation
 
 
     pip3 install pyvt --pre
 
 
-**Instantiation** ::
+##Instantiation
 
 
     api = pyvt.API('~/.virustotal.key')                                # The default way of using the 
@@ -44,6 +42,7 @@ How To Use
 
 You can pass limit_per_min, which is the number of queries you can perform per minute.  3000 is the default.
 You can also alternatively provide your api_key as a string parameter.
+
 
 API
 ===
@@ -69,8 +68,7 @@ These values are provided as constants that you can use instead in the 'API_Cons
     
     from pyvt import API_Constansts
 
-References
-==========
+###References
 
 [Virustotal Private API](https://www.virustotal.com/en/documentation/private-api/)
 

@@ -27,15 +27,16 @@ setup(
         'Programming Language :: Python :: 3',
     ],
     keywords='virustotal api private',
-    packages=find_packages(exclude=['tests', 'tests.*']),
+    py_modules=['pyvt'],
     include_package_data=True,
-    install_requires=[],
     tests_require=['nose', 'coverage'],
     zip_safe=False,
     test_suite='nose.collector',
+    # packages=find_packages(exclude=['tests', 'tests.*']),
+    # setup_requires=[],
+    # install_requires=[],
     # data_files=[],
     # scripts=[],
-    # setup_requires=[],
     # **extra_kwargs
 )
 
