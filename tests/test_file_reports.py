@@ -1,14 +1,14 @@
 # Copyright (c) 2009-2014 Arman Noroozian
 
 from unittest import TestCase
-import pyvt
 import json
+import pyvt
 
 
 class QueryFileReports(TestCase):
 
     def setUp(self):
-        self.api = pyvt.pyvt('~/.virustotal.key')
+        self.api = pyvt.API('~/.virustotal.key')
 
     def test_retrieve_file_report(self):
         response = self.api.retrieve('8725ffa2f7467e5f2147058a512ea65c6d349927d4ae064a69bd1348d8d002c2')

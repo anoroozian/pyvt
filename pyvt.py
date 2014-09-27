@@ -17,7 +17,7 @@ import requests
 import configparser
 
 
-class pyvt(object):
+class API(object):
 
     def __init__(self, api_key_file, api_key=None, limit_per_min=3000):
 

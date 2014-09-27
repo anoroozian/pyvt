@@ -1,13 +1,13 @@
 # Copyright (c) 2009-2014 Arman Noroozian
 
 from unittest import TestCase
-import pyvt
 import json
+import pyvt
 
 
 class QueryURLS(TestCase):
     def setUp(self):
-        self.api = pyvt.pyvt('~/.virustotal.key')
+        self.api = pyvt.API('~/.virustotal.key')
 
     def test_retriece_single_url(self):
         self.api._urls_per_retrieve = 4

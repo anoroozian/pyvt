@@ -1,14 +1,14 @@
 # Copyright (c) 2009-2014 Arman Noroozian
 
 from unittest import TestCase
-import pyvt
 import json
+import pyvt
 
 
 class QueryDomains(TestCase):
 
     def setUp(self):
-        self.api = pyvt.pyvt('~/.virustotal.key')
+        self.api = pyvt.API('~/.virustotal.key')
 
     def test_retrieve_domain(self):
         response = self.api.retrieve('3dtaller.com.ar')

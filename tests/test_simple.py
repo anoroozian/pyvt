@@ -2,12 +2,11 @@
 from unittest import TestCase
 import pyvt
 from pyvt import API_Constants
-import json
 
 
 class Simple(TestCase):
     def setUp(self):
-        self.api = pyvt.pyvt('~/.virustotal.key')
+        self.api = pyvt.API('~/.virustotal.key')
 
     def test_whatis(self):
         self.assertEqual(API_Constants.SCANID, self.api._whatis(

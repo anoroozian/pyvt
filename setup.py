@@ -7,8 +7,6 @@ except ImportError:
     print("warning: pypandoc module not found, could not convert Markdown to RST")
     read_md = lambda f: open(f, 'r').read()
 
-extra_kwargs = {}
-
 setup(
     name='pyvt',
     version='0.1a1',
@@ -29,7 +27,7 @@ setup(
         'Programming Language :: Python :: 3',
     ],
     keywords='virustotal api private',
-    py_modules=['pyvt'],
+    packages=find_packages(exclude=['tests', 'tests.*']),
     include_package_data=True,
     install_requires=[],
     tests_require=['nose', 'coverage'],
@@ -38,8 +36,7 @@ setup(
     # data_files=[],
     # scripts=[],
     # setup_requires=[],
-    # packages=find_packages(exclude=['tests', 'tests.*']),
-    **extra_kwargs
+    # **extra_kwargs
 )
 
 

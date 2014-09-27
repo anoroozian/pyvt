@@ -8,13 +8,13 @@ This module borrows code from, the [virustotal2](https://github.com/Phillipmarti
 It uses the same rate limiting logic as virustotal2. Additionally it unifies the output of the API to json format and adds support for bulk queries.
 
 
-## Prerequisites
-
-## Example
+How To Use
+==========
+::
 
     import pyvt
 
-    api = pyvt.pyvt('~/.virustotal.key')
+    api = pyvt.API('~/.virustotal.key')
     # Retrieve list of ips
     api.retrieve(['173.236.179.77', '66.33.221.102'])
     
@@ -30,18 +30,24 @@ It uses the same rate limiting logic as virustotal2. Additionally it unifies the
     api.retrieve('3dtaller.com.ar')
     
 
-## How To Use
-### Install
-    pip install pyvt
+**Installiation** ::
 
-### Instantiation
-    api = pyvt.pyvt('~/.virustotal.key')                                # The default way of using the 
-    api = pyvt.pyvt('', api_key=<VT API KEY>, limit_per_min=<number>)   # Providing other parameters
+
+    pip3 install pyvt --pre
+
+
+**Instantiation** ::
+
+
+    api = pyvt.API('~/.virustotal.key')                                # The default way of using the 
+    api = pyvt.API('', api_key=<VT API KEY>, limit_per_min=<number>)   # Providing other parameters
 
 You can pass limit_per_min, which is the number of queries you can perform per minute.  3000 is the default.
 You can also alternatively provide your api_key as a string parameter.
 
-### Retrieve a report
+API
+===
+
 Use the method retrieve() to get an existing report from VirusTotal.  This method's first argument can be:
 
 - a single or list of MD5, SHA1 or SHA256 of files
@@ -59,10 +65,13 @@ retrieve() will attempt to auto-detect what you're giving it.  If you want to be
 - url
 
 These values are provided as constants that you can use instead in the 'API_Constans' class which you can import as follows
+::
     
     from pyvt import API_Constansts
 
-## References
+References
+==========
+
 [Virustotal Private API](https://www.virustotal.com/en/documentation/private-api/)
 
 
