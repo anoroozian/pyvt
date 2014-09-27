@@ -1,0 +1,5 @@
+Implement Remaining API Actions/Calls.
+
+Thorough testing.
+
+Pythonic way of seperating constants? Is what I have done good practice?

@@ -19,29 +19,6 @@ import configparser
 
 class pyvt(object):
 
-    #Regular expressions used internally to match the type of query sent to the virus total API
-    _SCAN_ID_RE = re.compile(r"^[a-fA-F0-9]{64}-[0-9]{10}$")
-    _IP_RE = re.compile(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
-    _HASH_RE = re.compile(r"^([1234567890abcdef]{32,32}|[1234567890abcdef]{40,40}|[1234567890abcdef]{64,64})$")
-    _DOMAIN_RE = re.compile(r"^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$")
-
-    #TODO: Move these constants to a class of its own
-    #Constants used to identify the type of query sent to the virus total API
-    _CONST_BASE64 = "base64"
-    _CONST_SCANID = "scanid"
-    _CONST_DOMAIN = "domain"
-    _CONST_IP = "ip"
-    _CONST_HASH = "hash"
-    _CONST_URL = "url"
-    _CONST_FILE_NAME = "file_name"
-    _CONST_UNKNOWN = "unknown"
-
-    _CONST_API_URL = "https://www.virustotal.com/vtapi/v2/"
-    _API_ACTION_GET_URL_REPORT = "url/report"
-    _API_ACTION_GET_IP_REPORT = "ip-address/report"
-    _API_ACTION_GET_DOMAIN_REPORT = "domain/report"
-    _API_ACTION_GET_FILE_REPORT = "file/report"
-
     def __init__(self, api_key_file, api_key=None, limit_per_min=3000):
 
         confpath = os.path.expanduser(api_key_file)
@@ -57,7 +34,6 @@ class pyvt(object):
             key = api_key
 
         self.api_key = key
-
         self._urls_per_retrieve = 4
         self._hashes_per_retrieve = 4
         self._ips_per_retrieve = 1
@@ -120,31 +96,31 @@ class pyvt(object):
 
         #implied failure case, thing is neither a list or a file, so we assume string
         if not isinstance(thing, str):
-            return "%s" % self._CONST_UNKNOWN
+            return "%s" % API_Constants.UNKNOWN
 
         if os.path.isfile(thing):
             if thing.endswith(".base64"):
-                return self._CONST_BASE64
+                    return API_Constants.BASE64
             else:
-                return self._CONST_FILE_NAME
+                return API_Constants.FILE_NAME
 
-        elif self._HASH_RE.match(thing):
-            return self._CONST_HASH
+        elif API_Constants.HASH_RE.match(thing):
+            return API_Constants.HASH
 
-        elif self._IP_RE.match(thing):
-            return self._CONST_IP
+        elif API_Constants.IP_RE.match(thing):
+            return API_Constants.IP
 
-        elif self._DOMAIN_RE.match(thing):
-            return self._CONST_DOMAIN
+        elif API_Constants.DOMAIN_RE.match(thing):
+            return API_Constants.DOMAIN
 
-        elif self._SCAN_ID_RE.match(thing):
-            return self._CONST_SCANID
+        elif API_Constants.SCAN_ID_RE.match(thing):
+            return API_Constants.SCANID
 
         elif urllib.parse.urlparse(thing).scheme:
-            return self._CONST_URL
+            return API_Constants.URL
 
         else:
-            return self._CONST_UNKNOWN
+            return API_Constants.UNKNOWN
 
     def _get_query(self, query, params):
         """
@@ -195,8 +171,8 @@ class pyvt(object):
         query_parameters = {}
 
         # Query API for URL(s)
-        if thing_type == self._CONST_URL:  # Get the scan results for a given URL or list of URLs.
-            query = self._CONST_API_URL + self._API_ACTION_GET_URL_REPORT
+        if thing_type == API_Constants.URL:  # Get the scan results for a given URL or list of URLs.
+            query = API_Constants.CONST_API_URL + API_Constants.API_ACTION_GET_URL_REPORT
             if not isinstance(thing, list):
                 thing = [thing]
             grouped_urls = self._grouped(thing, self._urls_per_retrieve)  # break list of URLS down to API limits
@@ -221,9 +197,9 @@ class pyvt(object):
             result = results
 
         # Query API for domain(s)
-        elif thing_type == self._CONST_DOMAIN:
+        elif thing_type == API_Constants.DOMAIN:
 
-            query = self._CONST_API_URL + self._API_ACTION_GET_DOMAIN_REPORT
+            query = API_Constants.CONST_API_URL + API_Constants.API_ACTION_GET_DOMAIN_REPORT
             if not isinstance(thing, list):
                 thing = [thing]
             results = {}
@@ -236,9 +212,9 @@ class pyvt(object):
             result = results
 
         # Query API for IP(s)
-        elif thing_type == self._CONST_IP:
+        elif thing_type == API_Constants.IP:
 
-            query = self._CONST_API_URL + self._API_ACTION_GET_IP_REPORT
+            query = API_Constants.CONST_API_URL + API_Constants.API_ACTION_GET_IP_REPORT
 
             if not isinstance(thing, list):
                 thing = [thing]
@@ -256,9 +232,9 @@ class pyvt(object):
             result = results
 
         # Query API for HASH, bulk HASH queries not possible
-        elif thing_type == self._CONST_HASH:
+        elif thing_type == API_Constants.HASH:
 
-            query = self._CONST_API_URL + self._API_ACTION_GET_FILE_REPORT
+            query = API_Constants.CONST_API_URL + API_Constants.API_ACTION_GET_FILE_REPORT
 
             results = {}
             if not isinstance(thing, list):
@@ -266,6 +242,9 @@ class pyvt(object):
             query_parameters["resource"] = ", ".join(thing)
             self._limit_call_handler()
             response = self._get_query(query, query_parameters)
+
+            if not isinstance(response, list):
+                response = [response]
 
             for index, hash in enumerate(thing):
                 results[hash] = response[index]
@@ -283,3 +262,26 @@ class pyvt(object):
 
         return result
 
+
+class API_Constants:
+    #Regular expressions used internally to match the type of query sent to the virus total API
+    SCAN_ID_RE = re.compile(r"^[a-fA-F0-9]{64}-[0-9]{10}$")
+    IP_RE = re.compile(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
+    HASH_RE = re.compile(r"^([1234567890abcdef]{32,32}|[1234567890abcdef]{40,40}|[1234567890abcdef]{64,64})$")
+    DOMAIN_RE = re.compile(r"^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$")
+
+    #Constants used to identify the type of query sent to the virus total API
+    BASE64 = "base64"
+    SCANID = "scanid"
+    DOMAIN = "domain"
+    IP = "ip"
+    HASH = "hash"
+    URL = "url"
+    FILE_NAME = "file_name"
+    UNKNOWN = "unknown"
+
+    CONST_API_URL = "https://www.virustotal.com/vtapi/v2/"
+    API_ACTION_GET_URL_REPORT = "url/report"
+    API_ACTION_GET_IP_REPORT = "ip-address/report"
+    API_ACTION_GET_DOMAIN_REPORT = "domain/report"
+    API_ACTION_GET_FILE_REPORT = "file/report"
