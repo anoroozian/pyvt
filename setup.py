@@ -7,9 +7,12 @@ except ImportError:
     print("warning: pypandoc module not found, could not convert Markdown to RST")
     read_md = lambda f: open(f, 'r').read()
 
+__version__ = None
+exec(open('pyasn/_version.py').read())  # load the actual __version__
+
 setup(
     name='pyvt',
-    version='0.1a1',
+    version=__version__,
     maintainer='Arman Noroozian',
     maintainer_email='arman.noroozian.developer@gmail.com',
     url='https://github.com/anoroozian/pyvt',

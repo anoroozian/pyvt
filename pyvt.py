@@ -15,6 +15,7 @@ import time
 import hashlib
 import requests
 import configparser
+from ._version import __version__
 
 
 class API(object):
