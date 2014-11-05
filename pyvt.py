@@ -262,6 +262,41 @@ class API(object):
 
         return result
 
+    def scan(self, thing, thing_type=None):
+        thing_id = self._whatis(thing)
+        if thing_type is None:
+            thing_type = thing_id
+
+        query_parameters = {}
+
+        if thing_type == API_Constants.URL:  # Get the scan results for a given URL or list of URLs.
+            query = API_Constants.CONST_API_URL + API_Constants.API_ACTION_SUBMIT_URL_SCAN
+            if not isinstance(thing, list):
+                thing = [thing]
+            grouped_urls = self._grouped(thing, self._urls_per_retrieve)  # break list of URLS down to API limits
+            results = {}
+
+            for group in grouped_urls:
+                query_parameters = {"resource": "\n".join([url for url in group])}
+                self._limit_call_handler()
+                try:
+                    response = self._post_query(query, query_parameters)
+                except:
+                    raise TypeError
+
+                # If we get a list of URLs that has N urls and N mod '_url_per_retrieve' is 1
+                # for example  [url, url, url], when limit is 2, the last query will not return a list
+                if not isinstance(response, list):
+                    response = [response]
+
+                for index, url in enumerate(group):
+                    results[url] = response[index]
+
+            result = results
+        else:
+            raise TypeError("Unimplemented! for '%s'." % thing_type)
+        return result
+
 
 class API_Constants:
     #Regular expressions used internally to match the type of query sent to the virus total API
@@ -285,3 +320,4 @@ class API_Constants:
     API_ACTION_GET_IP_REPORT = "ip-address/report"
     API_ACTION_GET_DOMAIN_REPORT = "domain/report"
     API_ACTION_GET_FILE_REPORT = "file/report"
+    API_ACTION_SUBMIT_URL_SCAN = "url/scan"
