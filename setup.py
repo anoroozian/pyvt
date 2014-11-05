@@ -8,7 +8,7 @@ except ImportError:
     read_md = lambda f: open(f, 'r').read()
 
 __version__ = None
-exec(open('pyasn/_version.py').read())  # load the actual __version__
+exec(open('_version.py').read())  # load the actual __version__
 
 setup(
     name='pyvt',
