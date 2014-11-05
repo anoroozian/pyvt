@@ -72,6 +72,30 @@ These values are provided as constants that you can use instead in the 'API_Cons
 You can use thee scan() method to scan specific URLs. The scan method currently only supports URLs and will through an exception if
 anything other than a url is given to it.
 
+Here is an example usage of the scan method that blocks until all scan results are available.
+
+    response, fail = api.scan(['http://3dtaller.com.ar/',
+                               'http://3dtaller.com.ar/wp-content/themes/theme1392/js/jquery.loader.js',
+                               'http://3dtaller.com.ar/wp-includes/js/swfobject.js',
+                               'http://3dtaller.com.ar/wp-content/themes/theme1392/js/modernizr-2.0.js',
+                               'http://3dtaller.com.ar/wp-content/themes/theme1392/js/custom.js',
+                               'http://3dtaller.com.ar/wp-content/themes/theme1392/js/jquery-1.6.4.min.js'], blocking=True)
+                                   
+Here is another usage example of the scan method that is none blocking.
+
+    response, fail = api.scan(['http://3dtaller.com.ar/',
+                               'http://3dtaller.com.ar/wp-content/themes/theme1392/js/jquery.loader.js',
+                               'http://3dtaller.com.ar/wp-includes/js/swfobject.js',
+                               'http://3dtaller.com.ar/wp-content/themes/theme1392/js/modernizr-2.0.js',
+                               'http://3dtaller.com.ar/wp-content/themes/theme1392/js/custom.js',
+                               'http://3dtaller.com.ar/wp-content/themes/theme1392/js/jquery-1.6.4.min.js'])
+
+With the non-blocking call you will need to use the 'retrieve' method to get the results of the scan at a later stage.
+Note that the 'scan' method will return a Tuple where the second element is the urls for which the Virustotal API returned a
+Failure status response code and the method will not attempt to submit again.
+
+
+
 ###References
 
 [Virustotal Private API](https://www.virustotal.com/en/documentation/private-api/)
