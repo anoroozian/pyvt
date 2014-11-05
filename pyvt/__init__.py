@@ -189,8 +189,8 @@ class API(object):
                 if not isinstance(response, list):
                     response = [response]
 
-                for index, url in enumerate(group):
-                    results[url] = response[index]
+                for index, scanid in enumerate(group):
+                    results[scanid] = response[index]
 
             result = results
 
@@ -248,52 +248,70 @@ class API(object):
                 results[hash] = response[index]
             result = results
 
-        # TODO: Query API for SCANID
         elif thing_type == "scanid":
-            #The virustotal API doesn't have a single query for scanIDs.  You need to submit URL scanIDs
-            #to the URL query, file scanIDs to the file query, etc.  Therefore, we can do nothing with a
-            #scanID or array of scanIDs unless you specify the thing_type yourself.
-            raise TypeError("Can't infer the proper query when given scanIDs without a thing_type that is not scanID")
-
-        else:
-            raise TypeError("Unable to scan type '%s'." % thing_type)
-
-        return result
-
-    def scan(self, thing, thing_type=None):
-        thing_id = self._whatis(thing)
-        if thing_type is None:
-            thing_type = thing_id
-
-        query_parameters = {}
-
-        if thing_type == API_Constants.URL:  # Get the scan results for a given URL or list of URLs.
-            query = API_Constants.CONST_API_URL + API_Constants.API_ACTION_SUBMIT_URL_SCAN
+            query = API_Constants.CONST_API_URL + API_Constants.API_ACTION_GET_URL_REPORT
             if not isinstance(thing, list):
                 thing = [thing]
-            grouped_urls = self._grouped(thing, self._urls_per_retrieve)  # break list of URLS down to API limits
             results = {}
 
-            for group in grouped_urls:
-                query_parameters = {"resource": "\n".join([url for url in group])}
+            for scanid in thing:
+                query_parameters["resource"] = scanid
                 self._limit_call_handler()
                 try:
                     response = self._post_query(query, query_parameters)
                 except:
                     raise TypeError
-
-                # If we get a list of URLs that has N urls and N mod '_url_per_retrieve' is 1
-                # for example  [url, url, url], when limit is 2, the last query will not return a list
-                if not isinstance(response, list):
-                    response = [response]
-
-                for index, url in enumerate(group):
-                    results[url] = response[index]
+                results[scanid] = response
 
             result = results
         else:
-            raise TypeError("Unimplemented! for '%s'." % thing_type)
+            raise TypeError("Unable to scan type '%s'." % thing_type)
+
         return result
+
+    def scan(self, thing, thing_type=None, blocking=False):
+        thing_id = self._whatis(thing)
+        if thing_type is None:
+            thing_type = thing_id
+
+        failed = []
+        query_parameters = {}
+        if thing_type == API_Constants.URL:  # Get the scan results for a given URL or list of URLs.
+            query = API_Constants.CONST_API_URL + API_Constants.API_ACTION_SUBMIT_URL_SCAN
+            if not isinstance(thing, list):
+                thing = [thing]
+
+            pending_results = {}
+
+            for url in thing:
+                query_parameters["url"] = url
+                self._limit_call_handler()
+                try:
+                    response = self._post_query(query, query_parameters)
+                    if response['response_code'] == 1:
+                        pending_results[url] = response['scan_id']
+                    else:
+                        failed.append(url)
+                except:
+                    raise TypeError
+
+            result = pending_results
+            if blocking:
+                results = {}
+                done = 0
+                pending = len(pending_results)
+                while done < pending:
+                    url, scan_id = pending_results.popitem()
+                    response = self.retrieve(scan_id)
+                    if response[scan_id]['response_code'] == 1:
+                        results[url] = response[scan_id]
+                        done += 1
+                    else:
+                        pending_results[url] = scan_id
+                result = results
+        else:
+            raise TypeError("Unimplemented! for '%s'." % thing_type)
+        return result, failed
 
 
 class API_Constants:
