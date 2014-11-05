@@ -1,20 +1,17 @@
-#!/usr/bin/env python
 """
     This is a modified version of the virustotal2 python pacakge for VirusTotal.
     (https://github.com/Phillipmartin/virustotal2)
     This package supports python3 only and is targeted towards private API key users.
 """
 
-import base64
 import threading
 from itertools import zip_longest
 import os
 import urllib.parse
 import re
 import time
-import hashlib
-import requests
 import configparser
+import requests
 from ._version import __version__
 
 

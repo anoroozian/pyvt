@@ -8,7 +8,7 @@ except ImportError:
     read_md = lambda f: open(f, 'r').read()
 
 __version__ = None
-exec(open('_version.py').read())  # load the actual __version__
+exec(open('pyvt/_version.py').read())  # load the actual __version__
 
 setup(
     name='pyvt',
@@ -30,7 +30,8 @@ setup(
         'Programming Language :: Python :: 3',
     ],
     keywords='virustotal api private',
-    py_modules=['pyvt'],
+    # py_modules=['__init__', '_version'],
+    packages=find_packages(exclude=['tests', 'tests.*']),
     include_package_data=True,
     tests_require=['nose', 'coverage'],
     zip_safe=False,

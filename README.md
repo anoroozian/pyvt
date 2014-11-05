@@ -68,6 +68,10 @@ These values are provided as constants that you can use instead in the 'API_Cons
     
     from pyvt import API_Constansts
 
+
+You can use thee scan() method to scan specific URLs. The scan method currently only supports URLs and will through an exception if
+anything other than a url is given to it.
+
 ###References
 
 [Virustotal Private API](https://www.virustotal.com/en/documentation/private-api/)
