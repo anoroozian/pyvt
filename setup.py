@@ -38,7 +38,7 @@ setup(
     test_suite='nose.collector',
     # packages=find_packages(exclude=['tests', 'tests.*']),
     # setup_requires=[],
-    # install_requires=[],
+    install_requires=['requests'],
     # data_files=[],
     # scripts=[],
     # **extra_kwargs
