@@ -148,17 +148,16 @@ class API(object):
 
     def retrieve(self, thing, thing_type=None):
         """
-        Retrieve a report from VirusTotal based on a hash, IP, domain, file or URL.  NOTE: URLs must include the scheme
+        Retrieve a report from VirusTotal based on a hash, IP, domain, file or URL or ScanID.  NOTE: URLs must include the scheme
          (e.g. http://)\n
 
         :param thing: a file name on the local system, a URL or list of URLs,
                       an IP or list of IPs, a domain or list of domains, a hash or list of hashes
         :param thing_type: Optional, a hint to the function as to what you are sending it
-        :param raw: Optional, if True return the raw JSON output from VT
         :return: Returns a a dictionary with thing as key and the API json response as the value
                 If thing was a list of things to query the results will be a dictionary with every thing in the list
                 as a key
-        :raises TypeError: if it gets something other than a filename, URL, IP domain or hash
+        :raises TypeError: if it gets something other than a URL, IP domain, hash or ScanID
         :raises TypeError: if VirusTotal returns something we can't parse.
         """
         #trust the user-supplied type over the automatic identification
@@ -265,33 +264,47 @@ class API(object):
 
             result = results
         else:
-            raise TypeError("Unable to scan type '%s'." % thing_type)
+            raise TypeError("Unimplemented '%s'." % thing_type)
 
         return result
 
     def scan(self, thing, thing_type=None, blocking=False):
+        """
+        \nScan a single or list of URLs, or Domains\n
+        NOTE: URLs must include the scheme (http:// or https://)\n
+        NOTE: For a single domain or list of domains this method will automatically append an 'http://' to the \n
+        beginningof the domain(s)\n
+
+        :param thing: a URL or list of URLs,
+                      a domain or list of domains
+        :param thing_type: Optional, a hint to the function as to what you are sending it
+        :param blocking: Default is False, it set to True will cause the function to block until all scan results can be
+                        retrieved from virus total and the results returned
+        :return: If blocking is False will return a dictionary with the thing as key and the ScanID as the value.
+                 These scan results can be later retrieved with the the API's retrieve method by providing the ScanID(s).
+                 If blocking if True will return a dictionary with the thing as key and the Scan result as the value.
+        :raises TypeError: if it gets something other than a URL or domain or list of either
+        :raises TypeError: if VirusTotal returns something we can't parse.
+        """
         thing_id = self._whatis(thing)
         if thing_type is None:
             thing_type = thing_id
 
-        failed = []
         query_parameters = {}
+        result = {}
+
         if thing_type == API_Constants.URL:  # Get the scan results for a given URL or list of URLs.
             query = API_Constants.CONST_API_URL + API_Constants.API_ACTION_SUBMIT_URL_SCAN
             if not isinstance(thing, list):
                 thing = [thing]
 
             pending_results = {}
-
             for url in thing:
                 query_parameters["url"] = url
                 self._limit_call_handler()
                 try:
                     response = self._post_query(query, query_parameters)
-                    if response['response_code'] == 1:
-                        pending_results[url] = response['scan_id']
-                    else:
-                        failed.append(url)
+                    pending_results[url] = response['scan_id']
                 except:
                     raise TypeError
 
@@ -309,9 +322,42 @@ class API(object):
                     else:
                         pending_results[url] = scan_id
                 result = results
+
+        elif thing_type == API_Constants.DOMAIN:
+            query = API_Constants.CONST_API_URL + API_Constants.API_ACTION_SUBMIT_URL_SCAN
+            if not isinstance(thing, list):
+                thing = [thing]
+
+            thing = ['http://%s' % a for a in thing]
+            pending_results = {}
+
+            for url in thing:
+                query_parameters["url"] = url
+                self._limit_call_handler()
+                try:
+                    response = self._post_query(query, query_parameters)
+                    pending_results[url] = response['scan_id']
+                except:
+                    raise TypeError
+
+            result = pending_results
+            if blocking:
+                results = {}
+                done = 0
+                pending = len(pending_results)
+                while done < pending:
+                    url, scan_id = pending_results.popitem()
+                    response = self.retrieve(scan_id)
+                    if response[scan_id]['response_code'] == 1:
+                        results[url] = response[scan_id]
+                        done += 1
+                    else:
+                        pending_results[url] = scan_id
+                result = results
+
         else:
             raise TypeError("Unimplemented! for '%s'." % thing_type)
-        return result, failed
+        return result
 
 
 class API_Constants:
