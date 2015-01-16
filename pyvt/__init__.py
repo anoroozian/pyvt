@@ -56,25 +56,25 @@ class API(object):
         """
         Ensure we don't exceed the N requests a minute limit by leveraging a thread lock
         """
-        #acquire a lock on our threading.Lock() object
+        # acquire a lock on our threading.Lock() object
         with self.limit_lock:
-            #if we have no configured limit, exit.  the lock releases based on scope
+            # if we have no configured limit, exit.  the lock releases based on scope
             if self.limit_per_min <= 0:
                 return
 
             now = time.time()
-            #self.limits is a list of query times + 60 seconds.  In essence it is a list of times
-            #that queries time out of the 60 second query window.
+            # self.limits is a list of query times + 60 seconds.  In essence it is a list of times
+            # that queries time out of the 60 second query window.
 
-            #this check expires any limits that have passed
+            # this check expires any limits that have passed
             self.limits = [l for l in self.limits if l > now]
-            #and we tack on the current query
+            # and we tack on the current query
             self.limits.append(now + 60)
 
-            #if we have more than our limit of queries (and remember, we call this before we actually
-            #execute a query) we sleep until the oldest query on the list (element 0 because we append
-            #new queries) times out.  We don't worry about cleanup because next time this routine runs
-            #it will clean itself up.
+            # if we have more than our limit of queries (and remember, we call this before we actually
+            # execute a query) we sleep until the oldest query on the list (element 0 because we append
+            # new queries) times out.  We don't worry about cleanup because next time this routine runs
+            # it will clean itself up.
             if len(self.limits) >= self.limit_per_min:
                 time.sleep(self.limits[0] - now)
 
@@ -86,13 +86,13 @@ class API(object):
         :return: a string representing the identified type of the input thing. If the input thing is a list the
          first element of the list is used to identify.
         """
-        #per the API, bulk requests must be of the same type
-        #ignore that you can intersperse scan IDs and hashes for now
-        #...although, does that actually matter given the API semantics?
+        # per the API, bulk requests must be of the same type
+        # ignore that you can intersperse scan IDs and hashes for now
+        # ...although, does that actually matter given the API semantics?
         if isinstance(thing, list):
             thing = thing[0]
 
-        #implied failure case, thing is neither a list or a file, so we assume string
+        # implied failure case, thing is neither a list or a file, so we assume string
         if not isinstance(thing, str):
             return "%s" % API_Constants.UNKNOWN
 
@@ -127,7 +127,7 @@ class API(object):
         :param params: parameters of the query
         :return: JSON formatted response from the API
         """
-        if not "apikey" in params:
+        if "apikey" not in params:
             params["apikey"] = self.api_key
 
         response = requests.get(query, params=params)
@@ -140,7 +140,7 @@ class API(object):
         :param params: parameters of the query
         :return: JSON formatted response from the API
         """
-        if not "apikey" in params:
+        if "apikey" not in params:
             params["apikey"] = self.api_key
 
         response = requests.post(query, data=params)
@@ -160,7 +160,7 @@ class API(object):
         :raises TypeError: if it gets something other than a URL, IP domain, hash or ScanID
         :raises TypeError: if VirusTotal returns something we can't parse.
         """
-        #trust the user-supplied type over the automatic identification
+        # trust the user-supplied type over the automatic identification
         thing_id = self._whatis(thing)
         if thing_type is None:
             thing_type = thing_id
@@ -361,13 +361,13 @@ class API(object):
 
 
 class API_Constants:
-    #Regular expressions used internally to match the type of query sent to the virus total API
+    # Regular expressions used internally to match the type of query sent to the virus total API
     SCAN_ID_RE = re.compile(r"^[a-fA-F0-9]{64}-[0-9]{10}$")
     IP_RE = re.compile(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
     HASH_RE = re.compile(r"^([1234567890abcdef]{32,32}|[1234567890abcdef]{40,40}|[1234567890abcdef]{64,64})$")
     DOMAIN_RE = re.compile(r"^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$")
 
-    #Constants used to identify the type of query sent to the virus total API
+    # Constants used to identify the type of query sent to the virus total API
     BASE64 = "base64"
     SCANID = "scanid"
     DOMAIN = "domain"
